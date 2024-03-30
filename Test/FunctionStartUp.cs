@@ -7,11 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Test;
 
-public class Startup : FunctionsStartup
+public class Startup(string connString) : FunctionsStartup
 {
-    private string connString =
-        "Server=tcp:localhost,1433;Initial Catalog=jobPortalV2Test;Persist Security Info=False;User ID=sa;Password=1986.Yusuf+;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;Enlist=false";
-
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddDbContext<Context>(options =>
@@ -19,7 +16,6 @@ public class Startup : FunctionsStartup
             options.UseSqlServer(connString)
                 .UseSnakeCaseNamingConvention();
         });
-        
 
         builder.Services.RegisterApplication();
         builder.Services.RegisterInfrastructure();

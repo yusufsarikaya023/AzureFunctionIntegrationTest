@@ -1,26 +1,27 @@
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Testcontainers.MsSql;
 
 namespace Test.IntegrationTest;
 
-public class FunctionApplicationStartup
+public class FunctionApplicationStartup: IAsyncLifetime
 {
     public readonly IHost host;
 
-    private string connString =
-        "Server=tcp:localhost,1433;Initial Catalog=jobPortalV2Test;Persist Security Info=False;User ID=sa;Password=1986.Yusuf+;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;Enlist=false";
-
+    public MsSqlContainer container = new MsSqlBuilder()
+        .WithName("TestDb")
+        .WithPassword("Password1234!")
+        .Build();
     private static readonly object _lock = new();
     private static bool _databaseInitialized;
 
-    protected DbContextOptionsBuilder<Context>? optionsBuilder;
-    protected Context context;
-    protected UnitOfWork unitOfWork;
-
     public FunctionApplicationStartup()
     {
-        var startup = new Startup();
+        InitializeAsync().Wait();
+        // set default database to TestDb
+        var connectionString = container.GetConnectionString().Replace("master", "TestDb");
+        var startup = new Startup(connectionString);
         host = new HostBuilder().ConfigureWebJobs(startup.Configure).Build();
         host.Start();
 
@@ -43,6 +44,16 @@ public class FunctionApplicationStartup
     public Context CreateContext()
         => new(
             new DbContextOptionsBuilder<Context>()
-                .UseSqlServer(connString)
+                .UseSqlServer(container.GetConnectionString().Replace("master", "TestDb"))
                 .Options);
+
+    public Task InitializeAsync()
+    {
+        return container.StartAsync();
+    }
+
+    public Task DisposeAsync()
+    {
+        return container.DisposeAsync().AsTask();
+    }
 }
