@@ -9,7 +9,8 @@ using Newtonsoft.Json;
 
 namespace Test.IntegrationTest.JobPost;
 
-public class InsertJobPostFunctionTest4 : IClassFixture<FunctionApplicationStartup>
+[Collection("Factory collection")]
+public class InsertJobPostFunctionTest4 
 {
     public InsertJobPostFunctionTest4(FunctionApplicationStartup startup)
     {

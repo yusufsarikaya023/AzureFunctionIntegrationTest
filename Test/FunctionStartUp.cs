@@ -14,13 +14,12 @@ public class Startup : FunctionsStartup
 
     public override void Configure(IFunctionsHostBuilder builder)
     {
-        // if mediatr is already registered, don't register it again
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
         builder.Services.AddDbContext<Context>(options =>
         {
             options.UseSqlServer(connString)
                 .UseSnakeCaseNamingConvention();
         });
+        
 
         builder.Services.RegisterApplication();
         builder.Services.RegisterInfrastructure();
