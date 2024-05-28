@@ -4,7 +4,7 @@ namespace Test;
 
 public class FakeFunctionContext: FunctionContext
 {
-    public override string InvocationId { get; }
+    public override string InvocationId { get; } 
     public override string FunctionId { get; }
     public override TraceContext TraceContext { get; }
     public override BindingContext BindingContext { get; }

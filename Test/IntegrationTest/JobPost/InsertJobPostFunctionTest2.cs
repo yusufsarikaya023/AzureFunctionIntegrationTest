@@ -10,14 +10,9 @@ using Newtonsoft.Json;
 namespace Test.IntegrationTest.JobPost;
 
 [Collection("Factory collection")]
-public class InsertJobPostFunctionTest2
+public class InsertJobPostFunctionTest2(FunctionApplicationStartup startup)
 {
-    public InsertJobPostFunctionTest2(FunctionApplicationStartup startup)
-    {
-        _sut = new InsertJobPostFunction(startup.host.Services.GetRequiredService<IMediator>());
-    }
-
-    private readonly InsertJobPostFunction _sut;
+    private readonly InsertJobPostFunction _sut = new(startup.host.Services.GetRequiredService<IMediator>());
 
     [Fact]
     public async Task Insert_JobPost_Should_Be_Added()
@@ -29,8 +24,6 @@ public class InsertJobPostFunctionTest2
             Description = "We are looking for a software engineer",
         };
         var context = new FakeFunctionContext();
-        var headers = new HttpHeadersCollection();
-        headers.Add("Content-Type", "application/json; charset=utf-8");
 
         var req = new FakeHttpRequestData(context,
             new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(dto)))
@@ -38,8 +31,7 @@ public class InsertJobPostFunctionTest2
 
         // act
         var result = await _sut.Run(req, context);
-        // convert to string
-        result.Body.Position = 0; /*reset Position to start*/
+        result.Body.Position = 0; 
         var reader = new StreamReader(result.Body);
         var text = await reader.ReadToEndAsync();
 
